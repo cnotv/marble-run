@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "vite",
-    "dev": "nodemon index.js"
+    "dev": "vite",
+    "build": "vite build"
   },
   "keywords": [],
   "author": "",
