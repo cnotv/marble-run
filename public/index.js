@@ -6,13 +6,19 @@ canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
 
 // Define Ball and Bar
-const Ball = (x, y, dx, dy, radius) => ({ x, y, dx, dy, radius });
+const Ball = (x, y, dx, dy, radius, gravity) => ({ x, y, dx, dy, radius, gravity });
 const Bar = (x, y, width, height) => ({ x, y, width, height });
+
+// Create a settings object with a gravity property
+const settings = {
+  gravity: 0.4,
+  friction: 0.5
+};
 
 // Create balls and bars
 let balls = [
-  Ball(window.innerWidth/2, window.innerHeight/2, 5, 5, 100),
-  Ball(window.innerWidth/2, window.innerHeight/2, -5, -5, 100),
+  Ball(window.innerWidth/2, window.innerHeight/2, 5, 5, 50, 0.1),
+  Ball(window.innerWidth/2, window.innerHeight/2, -5, -5, 50, 0.1),
   // Add more balls as needed
 ];
 
@@ -38,26 +44,6 @@ const handleBarCollisions = (ball, bars) => {
       }
     }
   });
-};
-
-const detectBarCollision = (ball, bar) => {
-  // Check if the ball is within the bar's boundaries
-  return ball.x + ball.radius > bar.x && 
-         ball.x - ball.radius < bar.x + bar.width && 
-         ball.y + ball.radius > bar.y && 
-         ball.y - ball.radius < bar.y + bar.height;
-};
-
-const resolveBarCollision = (ball, bar) => {
-  // If the ball hit the top or bottom of the bar, reverse the y velocity
-  if (ball.y - ball.radius < bar.y || ball.y + ball.radius > bar.y + bar.height) {
-    return { ...ball, dy: -ball.dy };
-  }
-  // If the ball hit the left or right side of the bar, reverse the x velocity
-  else if (ball.x - ball.radius < bar.x || ball.x + ball.radius > bar.x + bar.width) {
-    return { ...ball, dx: -ball.dx };
-  }
-  return ball;
 };
 
 const drawBall = (ball) => {
@@ -139,11 +125,18 @@ const rotate = (dx, dy, angle) => {
 // Function to update ball position
 const updateBall = (ball) => {
   // Check for collision with window edges and reverse direction if necessary
-  if (ball.x + ball.dx < ball.radius || ball.x + ball.dx > window.innerWidth - ball.radius) ball.dx = -ball.dx;
-  if (ball.y + ball.dy < ball.radius || ball.y + ball.dy > window.innerHeight - ball.radius) ball.dy = -ball.dy;
+  if (ball.x + ball.dx < ball.radius || ball.x + ball.dx > window.innerWidth - ball.radius) {
+    ball.dx = -ball.dx * settings.friction;
+  }
+  if (ball.y + ball.dy < ball.radius || ball.y + ball.dy > window.innerHeight - ball.radius) {
+    ball.dy = -ball.dy * settings.friction;
+  }
   // Update position
   ball.x += ball.dx;
   ball.y += ball.dy;
+
+  // Apply gravity
+  ball.dy += settings.gravity;
   return ball;
 };
 
@@ -187,3 +180,7 @@ balls.forEach((ball, index) => {
   gui.add(ball, 'dx', -10, 10).onChange(draw);
   gui.add(ball, 'dy', -10, 10).onChange(draw);
 });
+
+let gui = new dat.GUI({ name: `Settings` });
+gui.add(settings, 'gravity', -1, 1).onChange(draw);
+gui.add(settings, 'friction', 0, 1).onChange(draw);
