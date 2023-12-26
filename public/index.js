@@ -74,9 +74,9 @@ function drawLine(ctx, x, y, width, height) {
 
 // Define the icons
 const icons = [
-  { id: 'moveBalls', draw: drawCircle, x: 10, y: 10, width: 30, height: 30 },
-  { id: 'createBars', draw: drawCreateBars, x: 10, y: 50, width: 30, height: 30 },
-  { id: 'deleteBars', draw: drawLine, x: 10, y: 90, width: 30, height: 30 },
+  { id: 'moveBalls', tooltip: 'Add a ball', draw: drawCircle, x: 10, y: 10, width: 30, height: 30 },
+  { id: 'createBars', tooltip: 'Add an obstacle bar', draw: drawCreateBars, x: 10, y: 50, width: 30, height: 30 },
+  { id: 'deleteBars', tooltip: 'Delete an obstacle', draw: drawLine, x: 10, y: 90, width: 30, height: 30 },
 ];
 
 // Define Ball and Bar
@@ -88,8 +88,10 @@ const settings = {
   gravity: 0.4,
   friction: 0.5,
   cursorState: 'default', // default, moveBalls, createBars, deleteBars
-  selectedBall: null
+  selectedBall: null,
+  currentTooltip: null
 };
+
 
 // Create balls and bars
 let balls = [
@@ -145,6 +147,32 @@ canvas.addEventListener('click', (event) => {
       // Handle any other cursorState values
       break;
   }
+});
+
+// Add mousemove event listener to the canvas
+canvas.addEventListener('mousemove', (event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  // Check if the mouse is over any of the icons
+  icons.forEach(icon => {
+    if (x >= icon.x && x <= icon.x + icon.width && y >= icon.y && y <= icon.y + icon.height) {
+      // If the mouse is over the icon, draw the tooltip background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Set the fill color to semi-transparent black
+      const tooltipWidth = ctx.measureText(icon.tooltip).width;
+      ctx.fillRect(x, y - 30, tooltipWidth, 20);
+
+      // Draw the tooltip text
+      ctx.fillStyle = 'white'; // Set the fill color to white
+      ctx.font = '16px Arial'; // Set the font to 16px Arial
+      ctx.fillText(icon.tooltip, x, y - 10); // Draw the tooltip 10px above the mouse
+      // If the mouse is over the icon, store the tooltip in settings.currentTooltip
+      settings.currentTooltip = { text: icon.tooltip, x, y };
+    } else {
+      settings.currentTooltip = null;
+    }
+  });
 });
 
 let originalBallVelocity = null;
@@ -333,6 +361,19 @@ const draw = () => {
       ctx.strokeRect(icon.x, icon.y, icon.width, icon.height);
     }
   });
+
+  // Draw the tooltip
+  if (settings.currentTooltip) {
+    // Draw the tooltip background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Set the fill color to semi-transparent black
+    const tooltipWidth = ctx.measureText(settings.currentTooltip.text).width;
+    ctx.fillRect(settings.currentTooltip.x, settings.currentTooltip.y - 30, tooltipWidth, 20);
+
+    // Draw the tooltip text
+    ctx.fillStyle = 'white'; // Set the fill color to white
+    ctx.font = '16px Arial'; // Set the font to 16px Arial
+    ctx.fillText(settings.currentTooltip.text, settings.currentTooltip.x, settings.currentTooltip.y - 10); // Draw the tooltip 10px above the mouse
+  }
     
   for (let i = 0; i < balls.length; i++) {
     drawBall(balls[i]);
