@@ -1,5 +1,5 @@
 // Assuming that the updateBall function is exported from a module named 'ball'
-const { updateBall } = require('./public/index');
+const { updateBall } = require('../public/index');
 
 describe('updateBall', () => {
   it('should reverse x velocity and apply friction when ball hits left or right edge', () => {
