@@ -324,12 +324,12 @@ const rotate = (dx, dy, angle) => {
 };
 
 // Function to update ball position
-const updateBall = (ball) => {
+const updateBallPosition = (ball, item) => {
   // Check for collision with window edges and reverse direction if necessary
-  if (ball.x + ball.dx < ball.radius || ball.x + ball.dx > window.innerWidth - ball.radius) {
+  if (ball.x + ball.dx < item.leftEdge + ball.radius || ball.x + ball.dx > item.rightEdge - ball.radius) {
     ball.dx = -ball.dx * settings.friction;
   }
-  if (ball.y + ball.dy < ball.radius || ball.y + ball.dy > window.innerHeight - ball.radius) {
+  if (ball.y + ball.dy < item.topEdge + ball.radius || ball.y + ball.dy > item.bottomEdge - ball.radius) {
     ball.dy = -ball.dy * settings.friction;
   }
   // Update position
@@ -374,10 +374,11 @@ const draw = () => {
     ctx.font = '16px Arial'; // Set the font to 16px Arial
     ctx.fillText(settings.currentTooltip.text, settings.currentTooltip.x, settings.currentTooltip.y - 10); // Draw the tooltip 10px above the mouse
   }
-    
+
+  const canvasItem = {leftEdge: 0, rightEdge: window.innerWidth, topEdge: 0, bottomEdge: window.innerHeight}; 
   for (let i = 0; i < balls.length; i++) {
     drawBall(balls[i]);
-    updateBall(balls[i]);
+    updateBallPosition(balls[i], canvasItem);
 
     // Handle collisions with bars
     handleBarCollisions(balls[i], bars);
