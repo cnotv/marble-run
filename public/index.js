@@ -396,13 +396,15 @@ const draw = () => {
 
 setInterval(draw, 10);
 
+let gui = new dat.GUI({ name: `Settings` });
+
 balls.forEach((ball, index) => {
-  let gui = new dat.GUI({ name: `Ball ${index + 1}` });
-  gui.add(ball, 'radius', 50, 300).onChange(draw);
-  gui.add(ball, 'dx', -10, 10).onChange(draw);
-  gui.add(ball, 'dy', -10, 10).onChange(draw);
+  let ballFolder = gui.addFolder(`Ball ${index + 1}`);
+  ballFolder.add(ball, 'radius', 50, 300).onChange(draw);
+  ballFolder.add(ball, 'dx', -10, 10).onChange(draw);
+  ballFolder.add(ball, 'dy', -10, 10).onChange(draw);
+  ballFolder.open();
 });
 
-let gui = new dat.GUI({ name: `Settings` });
 gui.add(settings, 'gravity', -1, 1).onChange(draw);
 gui.add(settings, 'friction', 0, 1).onChange(draw);
